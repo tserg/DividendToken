@@ -1,4 +1,4 @@
-var MintableToken = artifacts.require("ERC20Mintable");
+var MintableToken = artifacts.require("DividendToken");
 
 module.exports = function(deployer) {
   deployer.deploy(MintableToken);
