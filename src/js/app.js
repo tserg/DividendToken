@@ -46,6 +46,14 @@ App = {
 
       document.getElementById("account").innerHTML = account;
 
+      // refresh page when wallet changes
+      // see https://metamask.github.io/metamask-docs/Advanced_Concepts/Provider_API#ethereum.on(eventname%2C-callback)
+
+      window.ethereum.on('accountsChanged', function(account) {
+        window.location.reload(true);
+      });
+
+
       // Display current wallet ETH balance
       var accountWeiBalance = web3.eth.getBalance(account, function(error, result) {
         if (!error) {
@@ -81,6 +89,8 @@ App = {
 
   bindEvents: function() {
     $(document).on('click', '.btn-mint-tokens', App.handleMintTokens);
+    $(document).on('click', '.btn-add-minter', App.handleAddMinter);
+    $(document).on('click', '.btn-pay-contract', App.handlePayContract);
 
   },
 
@@ -102,6 +112,60 @@ App = {
     });
 
 
+  },
+
+  handleAddMinter: function(event) {
+
+    console.log("Button pressed");
+
+    var dividendTokenInstance;
+
+    web3.eth.getAccounts().then(function(accounts) {
+
+      account = accounts[0];
+
+      App.contracts.DividendToken.deployed().then(function(instance) {
+        dividendTokenInstance = instance;
+
+        return dividendTokenInstance.addMinter($("#new-minter-address").val(), {from: account});
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+    });
+  },
+
+  handlePayContract: function(event) {
+    console.log("Pay Button pressed");
+
+    var dividendTokenInstance;
+
+    web3.eth.getAccounts().then(function(accounts) {
+
+      account = accounts[0];
+
+      App.contracts.DividendToken.deployed().then(function(instance) {
+
+        dividendTokenInstance = instance;
+        var _contractAddress = dividendTokenInstance.address;
+
+        console.log(_contractAddress);
+        console.log(account);
+
+        var payAmount = ($("#pay-contract-amount").val());
+
+        console.log(payAmount);
+
+        var payAmountInWei = web3.utils.toWei(payAmount);
+
+        console.log(payAmountInWei);
+
+
+
+        return dividendTokenInstance.payToContract({from: account, to: _contractAddress, value: payAmountInWei});
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+    });
   },
 
   getTokenSupply: function(tokenSupply) {
@@ -152,6 +216,46 @@ App = {
       return App.handleMintTokens();
     });
 
+    var addMinterButton = document.getElementById("btn-add-minter");
+    addMinterButton.addEventListener("click", function () {
+      return App.handleAddMinter();
+    });
+
+    var payContractButton = document.getElementById("btn-pay-contract");
+    payContractButton.addEventListener("click", function () {
+      return App.handlePayContract();
+    });
+
+
+
+    return App.getContractBalance();
+  },
+
+  getContractBalance: function(address) {
+    var dividendTokenInstance;
+
+    App.contracts.DividendToken.deployed().then(function(instance) {
+      dividendTokenInstance = instance;
+
+      return dividendTokenInstance.address;
+    }).then(function(contractAddress) {
+      console.log("Contract Address: " + contractAddress);
+
+      document.getElementById("contract-address").innerHTML = contractAddress;
+
+      var contractWeiBalance = web3.eth.getBalance(contractAddress, function(error, result) {
+        if (!error) {
+          console.log(JSON.stringify(result));
+
+          var contractBalance = web3.utils.fromWei(result, "ether");
+          document.getElementById("contract-funds-balance").innerHTML = contractBalance;
+
+        } else {
+          console.log(error);
+        }
+      });
+
+    })
   }
 
 };

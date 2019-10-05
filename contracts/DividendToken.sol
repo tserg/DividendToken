@@ -15,6 +15,10 @@ contract dividendToken is ERC20Mintable {
 		totalDividends = totalDividends.add(msg.value);
 	}
 
+	function payToContract() external payable {
+		totalDividends = totalDividends.add(msg.value);
+	}
+
 	function dividendBalanceOf(address account) public view returns (uint256) {
 		uint256 newDividends = totalDividends.sub(lastDividends[account]);
 		uint256 product = balanceOf(msg.sender).mul(newDividends);

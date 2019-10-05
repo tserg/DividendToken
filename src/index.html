@@ -48,6 +48,13 @@
         <span id ="account_status"></span>
       </div>
 
+      <br>
+
+      <div id = "contract-address-display">
+        <span>Contract address: </span>
+        <span id = "contract-address"></span>
+      </div>
+
       <div id = "token-supply-display">
         <span>Total supply of tokens: </span>
         <span id = "token-supply"></span>
@@ -56,6 +63,11 @@
       <div id = "user-token-count-display">
         <span>Number of tokens held in this wallet: </span>
         <span id = "user-token-count"></span>
+      </div>
+
+      <div id = "contract-funds-display">
+        <span>ETH balance in token contract: </span>
+        <span id = "contract-funds-balance"></span>
       </div>
 
 
@@ -86,6 +98,32 @@
       <div>
 
         <button type="button" id="btn-mint-tokens">Mint</button>
+
+      </div>
+
+      <div>
+
+        <span>Address to add as minter: </span>
+        <input type="text" size=50 id="new-minter-address">
+
+      </div>
+      
+      <div>
+
+        <button type="button" id="btn-add-minter">Add Minter</button>
+
+      </div>
+
+      <div>
+
+        <span>Pay ETH to token contract: </span>
+        <input type="text" size=50 id="pay-contract-amount">
+
+      </div>
+      
+      <div>
+
+        <button type="button" id="btn-pay-contract">Pay</button>
 
       </div>
 
