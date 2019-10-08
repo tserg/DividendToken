@@ -21,7 +21,7 @@ contract dividendToken is ERC20Mintable {
 
 	function dividendBalanceOf(address account) public view returns (uint256) {
 		uint256 newDividends = totalDividends.sub(lastDividends[account]);
-		uint256 product = balanceOf(msg.sender).mul(newDividends);
+		uint256 product = balanceOf(account).mul(newDividends);
 
 		return product.div(totalSupply());
 	}

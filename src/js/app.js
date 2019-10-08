@@ -83,18 +83,14 @@ App = {
       return App.getTokenSupply();
     });
 
-    return App.bindEvents();
 
   },
 
-  bindEvents: function() {
-    $(document).on('click', '.btn-mint-tokens', App.handleMintTokens);
-    $(document).on('click', '.btn-add-minter', App.handleAddMinter);
-    $(document).on('click', '.btn-pay-contract', App.handlePayContract);
 
-  },
 
   handleMintTokens: function(event) {
+
+    console.log("Mint Button pressed");
 
     var dividendTokenInstance;
 
@@ -168,7 +164,28 @@ App = {
     });
   },
 
-  getTokenSupply: function(tokenSupply) {
+  handleClaimDividends: function(event) {
+    console.log("Claim Dividends button pressed");
+
+    var dividendTokenInstance;
+
+    web3.eth.getAccounts().then(function(accounts) {
+
+      account = accounts[0];
+
+      App.contracts.DividendToken.deployed().then(function(instance) {
+
+        dividendTokenInstance = instance;
+
+        return dividendTokenInstance.claimDividend({from: account});
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+
+    });
+  },
+
+  getTokenSupply: function() {
 
     var dividendTokenInstance;
 
@@ -186,7 +203,7 @@ App = {
     return App.getUserTokenCount();
   },
 
-  getUserTokenCount: function(userTokenCount) {
+  getUserTokenCount: function() {
     var dividendTokenInstance;
 
     web3.eth.getAccounts().then(function(accounts) {
@@ -204,13 +221,35 @@ App = {
 
     });
 
-    return App.getMinterDashboard();
+    return App.getDividendBalance();
 
   },
 
-  getMinterDashboard: function(address) {
+  getDividendBalance: function() {
     var dividendTokenInstance;
-  
+
+    web3.eth.getAccounts().then(function(accounts) {
+      account = accounts[0];
+      App.contracts.DividendToken.deployed().then(function(instance) {
+        dividendTokenInstance = instance;
+
+        return dividendTokenInstance.dividendBalanceOf(account);
+      }).then(function(userDividendBalance) {
+        console.log(JSON.stringify(userDividendBalance));
+        var _userDividendBalance = web3.utils.fromWei(userDividendBalance, "ether");
+        console.log("Dividends unclaimed in ETH: " + _userDividendBalance);
+        document.getElementById("dividend-balance").innerHTML = _userDividendBalance;
+      }).catch(function(err){
+        console.log(err.message);
+      });
+
+    });
+
+    return App.getMinterDashboard();
+  },
+
+  getMinterDashboard: function() {
+
     var mintButton = document.getElementById("btn-mint-tokens");
     mintButton.addEventListener("click", function() {
       return App.handleMintTokens();
@@ -226,12 +265,15 @@ App = {
       return App.handlePayContract();
     });
 
-
+    var claimDividendsButton = document.getElementById("btn-claim-dividends");
+    claimDividendsButton.addEventListener("click", function () {
+      return App.handleClaimDividends();
+    });
 
     return App.getContractBalance();
   },
 
-  getContractBalance: function(address) {
+  getContractBalance: function() {
     var dividendTokenInstance;
 
     App.contracts.DividendToken.deployed().then(function(instance) {
@@ -255,7 +297,8 @@ App = {
         }
       });
 
-    })
+    });
+
   }
 
 };
